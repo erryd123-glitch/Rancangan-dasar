@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rancangan Desain - Keamanan Server & Manajemen User</title>
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --card-bg: rgba(15, 23, 42, 0.9);
+      --accent-green: #10b981;
+      --accent-cyan: #06b6d4;
+      --text-light: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.12) 0px, transparent 50%);
+      color: var(--text-light);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px 15px;
+    }
+
+    .design-card {
+      width: 100%;
+      max-width: 450px;
+      background: var(--card-bg);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 24px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 20px rgba(16, 185, 129, 0.15);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Top Bar Header */
+    .top-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--accent-green);
+      color: var(--accent-green);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--accent-green);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent-green);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.2); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Logo / Icon Header */
+    .logo-badge {
+      width: 90px;
+      height: 90px;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2));
+      border: 2px solid var(--accent-green);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+      margin-bottom: 16px;
+    }
+
+    .logo-badge svg {
+      width: 44px;
+      height: 44px;
+      fill: var(--accent-green);
+    }
+
+    /* Judul Utama */
+    .title-group {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .title-group h1 {
+      font-size: 20px;
+      font-weight: 800;
+      background: linear-gradient(to right, #38bdf8, #34d399);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+
+    .title-group p {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 600;
+    }
+
+    /* Grid Tombol Navigasi */
+    .nav-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .nav-btn {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-light);
+      padding: 12px 10px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+    }
+
+    .nav-btn:hover {
+      border-color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .nav-btn.active {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(6, 182, 212, 0.3));
+      border-color: var(--accent-green);
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Content Area Frame */
+    .content-box {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px dashed rgba(16, 185, 129, 0.4);
+      border-radius: 16px;
+      padding: 20px;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .content-section {
+      display: none;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .content-section.active {
+      display: block;
+    }
+
+    .content-section h3 {
+      font-size: 15px;
+      color: var(--accent-cyan);
+      margin-bottom: 10px;
+    }
+
+    .placeholder-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="design-card">
+    <!-- Top Bar Status -->
+    <div class="top-bar">
+      <div class="status-badge">
+        <span class="pulse-dot"></span> TEMPLATE LAYOUT
+      </div>
+      <span style="font-size: 12px; color: var(--text-muted);">[ Sub-Judul / Ver ]</span>
+    </div>
+
+    <!-- Icon Security Logo -->
+    <div class="logo-badge">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 6h2v2h-2V7zm0 4h2v6h-2v-6z"/>
+      </svg>
+    </div>
+
+    <!-- Title Section -->
+    <div class="title-group">
+      <h1>Keamanan Server & Manajemen User</h1>
+      <p>[ Masukkan Nama Kelompok / Penyusun ]</p>
+    </div>
+
+    <!-- Navigasi Tombol Grid -->
+    <div class="nav-grid">
+      <button class="nav-btn active" onclick="switchTab('home', this)">
+        <span>🏠</span> Home
+      </button>
+      <button class="nav-btn" onclick="switchTab('video', this)">
+        <span>🎬</span> Video Tutorial
+      </button>
+
+      <button class="nav-btn" onclick="switchTab('tujuan', this)">
+        <span>🎯</span> Tujuan
+      </button>
+      <button class="nav-btn" onclick="switchTab('quiz', this)">
+        <span>📝</span> Quiz
+      </button>
+
+      <button class="nav-btn" onclick="switchTab('materi', this)">
+        <span>📖</span> Materi
+      </button>
+      <button class="nav-btn" onclick="switchTab('referensi', this)">
+        <span>📚</span> Sumber Referensi
+      </button>
+
+      <button class="nav-btn" onclick="switchTab('langkah', this)">
+        <span>⚡</span> Langkah Kerja
+      </button>
+      <button class="nav-btn" onclick="switchTab('profil', this)">
+        <span>👥</span> Profil Kelompok
+      </button>
+    </div>
+
+    <!-- Area Wadah Konten (Siap diisi) -->
+    <div class="content-box">
+      <!-- Home Section -->
+      <div id="home" class="content-section active">
+        <h3>🏠 Area Home</h3>
+        <div class="placeholder-text">
+          [ Masukkan teks sambutan / pengantar umum di sini ]
+        </div>
+      </div>
+
+      <!-- Video Section -->
+      <div id="video" class="content-section">
+        <h3>🎬 Area Video Tutorial</h3>
+        <div class="placeholder-text">
+          [ Masukkan embed video / tautan video tutorial di sini ]
+        </div>
+      </div>
+
+      <!-- Tujuan Section -->
+      <div id="tujuan" class="content-section">
+        <h3>🎯 Area Tujuan Pembelajaran</h3>
+        <div class="placeholder-text">
+          [ Masukkan poin-poin tujuan pembelajaran di sini ]
+        </div>
+      </div>
+
+      <!-- Quiz Section -->
+      <div id="quiz" class="content-section">
+        <h3>📝 Area Quiz</h3>
+        <div class="placeholder-text">
+          [ Masukkan pertanyaan quiz / tautan kuis interaktif di sini ]
+        </div>
+      </div>
+
+      <!-- Materi Section -->
+      <div id="materi" class="content-section">
+        <h3>📖 Area Materi Pembelajaran</h3>
+        <div class="placeholder-text">
+          [ Masukkan ringkasan materi Keamanan Server & Manajemen User di sini ]
+        </div>
+      </div>
+
+      <!-- Referensi Section -->
+      <div id="referensi" class="content-section">
+        <h3>📚 Area Sumber Referensi</h3>
+        <div class="placeholder-text">
+          [ Masukkan daftar pustaka / sumber referensi di sini ]
+        </div>
+      </div>
+
+      <!-- Langkah Kerja Section -->
+      <div id="langkah" class="content-section">
+        <h3>⚡ Area Langkah Kerja</h3>
+        <div class="placeholder-text">
+          [ Masukkan langkah-langkah praktikum / perintah konfigurasi di sini ]
+        </div>
+      </div>
+
+      <!-- Profil Kelompok Section -->
+      <div id="profil" class="content-section">
+        <h3>👥 Area Profil Kelompok</h3>
+        <div class="placeholder-text">
+          [ Masukkan daftar nama dan identitas anggota kelompok di sini ]
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(sectionId, element) {
+      // Sembunyikan semua seksi
+      const sections = document.querySelectorAll('.content-section');
+      sections.forEach(sec => sec.classList.remove('active'));
+
+      // Reset semua status tombol
+      const buttons = document.querySelectorAll('.nav-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+
+      // Tampilkan seksi pilihan
+      const activeSection = document.getElementById(sectionId);
+      if (activeSection) {
+        activeSection.classList.add('active');
+      }
+
+      // Aktifkan tombol yang diklik
+      if (element) {
+        element.classList.add('active');
+      }
+    }
+  </script>
+</body>
+</html>
